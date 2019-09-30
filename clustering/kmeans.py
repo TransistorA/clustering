@@ -11,7 +11,18 @@ def point_avg(points):
     
     Returns a new point which is the center of all the points.
     """
-    raise NotImplementedError()
+    number = len(points)
+    dimension = len(points[0])
+    center = []
+
+    for i in range(dimension):
+        value = 0
+        for j in range(number):
+            value += points[j][i]
+        value /= number
+        center.append(value)
+
+    return center
 
 
 def update_centers(data_set, assignments):
@@ -21,8 +32,18 @@ def update_centers(data_set, assignments):
     Compute the center for each of the assigned groups.
     Return `k` centers in a list
     """
-    raise NotImplementedError()
+    clusters = {}
+    for point, assignment in zip(data_set, assignments):
+        if assignment not in clusters.keys():
+            clusters[assignment] = []
+        clusters[assignment].append(point)
 
+    centers = []
+    for key in clusters.keys():
+        centers.append(point_avg(clusters[key]))
+
+    return centers
+ 
 
 def assign_points(data_points, centers):
     """
@@ -44,7 +65,13 @@ def distance(a, b):
     """
     Returns the Euclidean distance between a and b
     """
-    raise NotImplementedError()
+    assert len(a) == len(b)
+    
+    dis = 0
+    for i in range(len(a)):
+        dis += (a[i]-b[i])**2
+        
+    return dis**(1/2)
 
 
 def generate_k(data_set, k):
@@ -52,15 +79,25 @@ def generate_k(data_set, k):
     Given `data_set`, which is an array of arrays,
     return a random set of k points from the data_set
     """
-    raise NotImplementedError()
+    return random.sample(data_set, k)
 
 
 def get_list_from_dataset_file(dataset_file):
-    raise NotImplementedError()
+    data = []
+    file =  open(dataset_file, "r")
+    reader = csv.reader(file)
+    for line in reader:
+        data.append([int(i) for i in line])
+    return data
 
 
 def cost_function(clustering):
-    raise NotImplementedError()
+    cost = 0
+    for key, points in clustering.items():
+        center = point_avg(points)
+        for point in points:
+            cost += distance(center, point)
+    return cost
 
 
 def k_means(dataset_file, k):
@@ -76,3 +113,4 @@ def k_means(dataset_file, k):
     for assignment, point in zip(assignments, dataset):
         clustering[assignment].append(point)
     return clustering
+
